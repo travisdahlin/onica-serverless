@@ -1,0 +1,174 @@
+{
+  "dev-ids": [
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "1" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "George"
+              },
+              "lastName": {
+                "S": "Washington"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "2" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "John"
+              },
+              "lastName": {
+                "S": "Adams"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "3" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "Thomas"
+              },
+              "lastName": {
+                "S": "Jefferson"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "4" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "James"
+              },
+              "lastName": {
+                "S": "Madison"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "5" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "James"
+              },
+              "lastName": {
+                "S": "Monroe"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "6" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "John Quincy"
+              },
+              "lastName": {
+                "S": "Adams"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "7" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "Andrew"
+              },
+              "lastName": {
+                "S": "Jackson"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "8" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "Martin Van"
+              },
+              "lastName": {
+                "S": "Buren"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "9" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "William Henry"
+              },
+              "lastName": {
+                "S": "Harrison"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": { "S": "10" },
+          "details": {
+            "M": {
+              "firstName": {
+                "S": "John"
+              },
+              "lastName": {
+                "S": "Tyler"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
