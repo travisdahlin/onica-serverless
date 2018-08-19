@@ -7,6 +7,12 @@ Resources:
     Properties:
       RepositoryName: serverless-api
 
+  SLSDevCICDArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+
+  SLSProdCICDArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+
 Outputs:
   HttpURL:
     Value:
