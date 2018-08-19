@@ -52,3 +52,7 @@ functions:
           path: id/{id}
           method: get
           cors: true
+
+resources:
+  # Dynamodb
+  - ${file(resources/dynamodb-table.yml)}
