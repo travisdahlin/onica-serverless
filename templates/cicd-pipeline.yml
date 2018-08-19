@@ -97,7 +97,7 @@ Resources:
               - "sts:AssumeRole"
       Path: "/"
       Policies:
-        - PolicyName: sls-dev-codebuild-service-policy
+        - PolicyName: sls-codebuild-service-policy
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -118,6 +118,35 @@ Resources:
                   - events:*
                 Resource: "*"
                 Effect: Allow
+
+  DevCodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: onica-serverless-api-dev
+      ServiceRole:
+        Ref: SLSCodeBuildServiceRole
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/nodejs:8.11.0
+        EnvironmentVariables:
+          - Name: STAGE
+            Value: dev
+      Source:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+
+  DevCodeBuildLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName:
+        Fn::Join:
+          - ""
+          - - "/aws/codebuild/"
+            - Ref: DevCodeBuild
 
 Outputs:
   HttpURL:
