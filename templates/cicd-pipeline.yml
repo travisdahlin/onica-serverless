@@ -6,3 +6,15 @@ Resources:
     Type: AWS::CodeCommit::Repository
     Properties:
       RepositoryName: serverless-api
+
+Outputs:
+  HttpURL:
+    Value:
+      Fn::GetAtt:
+        - SLSCodeCommit
+        - CloneUrlHttp
+  SSHURL:
+    Value:
+      Fn::GetAtt:
+        - SLSCodeCommit
+        - CloneUrlSsh
