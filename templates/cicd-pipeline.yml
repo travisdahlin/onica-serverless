@@ -1,0 +1,276 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CI/CD pipelines for serverless api"
+
+Resources:
+  SLSCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: serverless-api
+
+  SLSDevCICDArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+
+  SLSProdCICDArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+
+  SLSCodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: sls-codepipline-service-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - s3:PutObject
+                Resource:
+                  - arn:aws:s3:::codepipeline*
+                Effect: Allow
+              - Action:
+                  - codecommit:CancelUploadArchive
+                  - codecommit:GetBranch
+                  - codecommit:GetCommit
+                  - codecommit:GetUploadArchiveStatus
+                  - codecommit:UploadArchive
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - cloudwatch:*
+                  - s3:*
+                  - sns:*
+                  - cloudformation:*
+                  - iam:PassRole
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - lambda:InvokeFunction
+                  - lambda:ListFunctions
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - cloudformation:CreateStack
+                  - cloudformation:DeleteStack
+                  - cloudformation:DescribeStacks
+                  - cloudformation:UpdateStack
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:DeleteChangeSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:SetStackPolicy
+                  - cloudformation:ValidateTemplate
+                  - iam:PassRole
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: "*"
+                Effect: Allow
+
+  SLSCodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: sls-codebuild-service-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - logs:*
+                  - s3:*
+                  - codecommit:*
+                  - iam:*
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:CreateTable
+                  - apigateway:*
+                  - ec2:DescribeVPCS
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeSecurityGroups
+                  - lambda:*
+                  - cloudformation:*
+                  - events:*
+                Resource: "*"
+                Effect: Allow
+
+  DevCodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: onica-serverless-api-dev
+      ServiceRole:
+        Ref: SLSCodeBuildServiceRole
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/nodejs:8.11.0
+        EnvironmentVariables:
+          - Name: STAGE
+            Value: dev
+      Source:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+
+  DevCodeBuildLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName:
+        Fn::Join:
+          - ""
+          - - "/aws/codebuild/"
+            - Ref: DevCodeBuild
+
+  SLSDevCodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+          - SLSCodePipelineServiceRole
+          - Arn
+      ArtifactStore:
+        Location:
+          Ref: SLSDevCICDArtifactStoreBucket
+        Type: S3
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: "1"
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                RepositoryName:
+                  Fn::GetAtt:
+                    - SLSCodeCommit
+                    - Name
+                BranchName: dev
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: DevBuild
+              InputArtifacts:
+                - Name: SourceOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: "1"
+                Provider: CodeBuild
+              Configuration:
+                ProjectName:
+                  Ref: DevCodeBuild
+
+  ProdCodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: onica-serverless-api-prod
+      ServiceRole:
+        Ref: SLSCodeBuildServiceRole
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/nodejs:8.11.0
+        EnvironmentVariables:
+          - Name: STAGE
+            Value: prod
+      Source:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+
+  ProdCodeBuildLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName:
+        Fn::Join:
+          - ""
+          - - "/aws/codebuild/"
+            - Ref: ProdCodeBuild
+
+  SLSProdAppPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+          - SLSCodePipelineServiceRole
+          - Arn
+      ArtifactStore:
+        Location:
+          Ref: SLSProdCICDArtifactStoreBucket
+        Type: S3
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: "1"
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                RepositoryName:
+                  Fn::GetAtt:
+                    - SLSCodeCommit
+                    - Name
+                BranchName: master
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: ProdBuild
+              InputArtifacts:
+                - Name: SourceOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: "1"
+                Provider: CodeBuild
+              Configuration:
+                ProjectName:
+                  Ref: ProdCodeBuild
+
+Outputs:
+  HttpURL:
+    Value:
+      Fn::GetAtt:
+        - SLSCodeCommit
+        - CloneUrlHttp
+  SSHURL:
+    Value:
+      Fn::GetAtt:
+        - SLSCodeCommit
+        - CloneUrlSsh
