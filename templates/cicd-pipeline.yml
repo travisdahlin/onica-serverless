@@ -1,0 +1,8 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CI/CD pipelines for serverless api"
+
+Resources:
+  SLSCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: serverless-api
