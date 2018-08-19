@@ -83,6 +83,42 @@ Resources:
                 Resource: "*"
                 Effect: Allow
 
+  SLSCodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: sls-dev-codebuild-service-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - logs:*
+                  - s3:*
+                  - codecommit:*
+                  - iam:*
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:DescribeTable
+                  - dynamodb:CreateTable
+                  - apigateway:*
+                  - ec2:DescribeVPCS
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeSecurityGroups
+                  - lambda:*
+                  - cloudformation:*
+                  - events:*
+                Resource: "*"
+                Effect: Allow
+
 Outputs:
   HttpURL:
     Value:
