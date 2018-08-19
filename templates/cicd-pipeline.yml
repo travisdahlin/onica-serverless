@@ -210,6 +210,16 @@ Resources:
         Type: CODEPIPELINE
       TimeoutInMinutes: 10
 
+  ProdCodeBuildLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName:
+        Fn::Join:
+          - ""
+          - - "/aws/codebuild/"
+            - Ref: ProdCodeBuild
+
 Outputs:
   HttpURL:
     Value:
