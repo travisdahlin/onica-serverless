@@ -5,7 +5,9 @@
   "scripts": {
     "precommit": "pretty-quick --staged",
     "install:dev": "sls deploy -v",
-    "install:prod": "sls deploy -v --stage prod"
+    "postinstall:dev": "aws dynamodb batch-write-item --request-items file://seeds/dev-seed.json",
+    "install:prod": "sls deploy -v --stage prod",
+    "postinstall:prod": "aws dynamodb batch-write-item --request-items file://seeds/prod-seed.json"
   },
   "author": "",
   "license": "MIT",
