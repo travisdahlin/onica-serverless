@@ -148,6 +148,49 @@ Resources:
           - - "/aws/codebuild/"
             - Ref: DevCodeBuild
 
+  SLSDevCodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+          - SLSCodePipelineServiceRole
+          - Arn
+      ArtifactStore:
+        Location:
+          Ref: SLSDevCICDArtifactStoreBucket
+        Type: S3
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: "1"
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                RepositoryName:
+                  Fn::GetAtt:
+                    - SLSCodeCommit
+                    - Name
+                BranchName: dev
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: DevBuild
+              InputArtifacts:
+                - Name: SourceOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: "1"
+                Provider: CodeBuild
+              Configuration:
+                ProjectName:
+                  Ref: DevCodeBuild
+
 Outputs:
   HttpURL:
     Value:
