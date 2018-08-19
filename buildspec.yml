@@ -7,5 +7,4 @@ phases:
       - npm install -g serverless
   build:
     commands:
-      - echo $STAGE
       - npm run install:$STAGE
