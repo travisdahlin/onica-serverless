@@ -40,7 +40,8 @@ Resources:
               - Action:
                   - s3:PutObject
                 Resource:
-                  - arn:aws:s3:::codepipeline*
+                  # bucket arn is prefixed with cf stack name sls-pipeline
+                  - arn:aws:s3:::sls-pipeline*
                 Effect: Allow
               - Action:
                   - codecommit:CancelUploadArchive
@@ -48,32 +49,13 @@ Resources:
                   - codecommit:GetCommit
                   - codecommit:GetUploadArchiveStatus
                   - codecommit:UploadArchive
-                Resource: "*"
+                Resource:
+                  - Fn::GetAtt:
+                      - SLSCodeCommit
+                      - Arn
                 Effect: Allow
               - Action:
                   - cloudwatch:*
-                  - s3:*
-                  - sns:*
-                  - cloudformation:*
-                  - iam:PassRole
-                Resource: "*"
-                Effect: Allow
-              - Action:
-                  - lambda:InvokeFunction
-                  - lambda:ListFunctions
-                Resource: "*"
-                Effect: Allow
-              - Action:
-                  - cloudformation:CreateStack
-                  - cloudformation:DeleteStack
-                  - cloudformation:DescribeStacks
-                  - cloudformation:UpdateStack
-                  - cloudformation:CreateChangeSet
-                  - cloudformation:DeleteChangeSet
-                  - cloudformation:DescribeChangeSet
-                  - cloudformation:ExecuteChangeSet
-                  - cloudformation:SetStackPolicy
-                  - cloudformation:ValidateTemplate
                   - iam:PassRole
                 Resource: "*"
                 Effect: Allow
@@ -103,20 +85,106 @@ Resources:
             Statement:
               - Action:
                   - logs:*
-                  - s3:*
-                  - codecommit:*
-                  - iam:*
+                Resource: "*"
+                Effect: Allow
+              - Action:
                   - dynamodb:BatchWriteItem
                   - dynamodb:DescribeTable
                   - dynamodb:CreateTable
-                  - apigateway:*
-                  - ec2:DescribeVPCS
-                  - ec2:DescribeSubnets
-                  - ec2:DescribeSecurityGroups
-                  - lambda:*
-                  - cloudformation:*
-                  - events:*
+                Resource:
+                  - arn:aws:dynamodb:us-west-2:873340800138:table/dev-ids*
+                  - arn:aws:dynamodb:us-west-2:873340800138:table/prod-ids
+                Effect: Allow
+              - Action:
+                  - cloudformation:Describe*
+                  - cloudformation:List*
+                  - cloudformation:Get*
+                  - cloudformation:PreviewStackUpdate
+                  - cloudformation:CreateStack
+                  - cloudformation:UpdateStack
+                  - cloudformation:DeleteStack
+                Resource:
+                  - arn:aws:cloudformation:us-west-2:873340800138:stack/onica-serverless-api-dev*/*
+                  - arn:aws:cloudformation:us-west-2:873340800138:stack/onica-serverless-api-prod*/*
+                Effect: Allow
+              - Action:
+                  - cloudformation:ValidateTemplate
                 Resource: "*"
+                Effect: Allow
+              - Action:
+                  - s3:CreateBucket
+                  - s3:DeleteBucket
+                  - s3:Get*
+                  - s3:List*
+                Resource: arn:aws:s3:::*
+                Effect: Allow
+              - Action:
+                  - s3:*
+                Resource: arn:aws:s3:::*/*
+                Effect: Allow
+              - Action:
+                  - iam:GetRole
+                  - iam:PassRole
+                  - iam:CreateRole
+                  - iam:DeleteRole
+                  - iam:DetachRolePolicy
+                  - iam:PutRolePolicy
+                  - iam:AttachRolePolicy
+                  - iam:DeleteRolePolicy
+                Resource:
+                  - arn:aws:iam::873340800138:role/onica-serverless-api-dev*-lambdaRole
+                  - arn:aws:iam::873340800138:role/onica-serverless-api-prod*-lambdaRole
+                Effect: Allow
+              - Action:
+                  - apigateway:GET
+                  - apigateway:POST
+                  - apigateway:PUT
+                  - apigateway:DELETE
+                Resource:
+                  - arn:aws:apigateway:us-west-2::/restapis
+                Effect: Allow
+              - Action:
+                  - apigateway:GET
+                  - apigateway:POST
+                  - apigateway:PUT
+                  - apigateway:DELETE
+                Resource:
+                  - arn:aws:apigateway:us-west-2::/restapis/*
+                Effect: Allow
+              - Action:
+                  - lambda:GetFunction
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                  - lambda:UpdateFunctionConfiguration
+                  - lambda:UpdateFunctionCode
+                  - lambda:ListVersionsByFunction
+                  - lambda:PublishVersion
+                  - lambda:CreateAlias
+                  - lambda:DeleteAlias
+                  - lambda:UpdateAlias
+                  - lambda:GetFunctionConfiguration
+                  - lambda:AddPermission
+                  - lambda:RemovePermission
+                  - lambda:InvokeFunction
+                Resource:
+                  - arn:aws:lambda:*:873340800138:function:onica-serverless-api-dev*
+                  - arn:aws:lambda:*:873340800138:function:onica-serverless-api-prod*
+                Effect: Allow
+              - Action:
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeVpcs
+                Resource:
+                  - "*"
+                Effect: Allow
+              - Action:
+                  - events:Put*
+                  - events:Remove*
+                  - events:Delete*
+                  - events:Describe*
+                Resource:
+                  - arn:aws:events::873340800138:rule/onica-serverless-api-dev*
+                  - arn:aws:events::873340800138:rule/onica-serverless-api-prod*
                 Effect: Allow
 
   DevCodeBuild:
