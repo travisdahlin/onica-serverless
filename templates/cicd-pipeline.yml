@@ -92,8 +92,8 @@ Resources:
                   - dynamodb:DescribeTable
                   - dynamodb:CreateTable
                 Resource:
-                  - arn:aws:dynamodb:us-west-2:873340800138:table/dev-ids*
-                  - arn:aws:dynamodb:us-west-2:873340800138:table/prod-ids
+                  - arn:aws:dynamodb:us-west-2:*:table/dev-ids*
+                  - arn:aws:dynamodb:us-west-2:*:table/prod-ids
                 Effect: Allow
               - Action:
                   - cloudformation:Describe*
@@ -104,8 +104,8 @@ Resources:
                   - cloudformation:UpdateStack
                   - cloudformation:DeleteStack
                 Resource:
-                  - arn:aws:cloudformation:us-west-2:873340800138:stack/onica-serverless-api-dev*/*
-                  - arn:aws:cloudformation:us-west-2:873340800138:stack/onica-serverless-api-prod*/*
+                  - arn:aws:cloudformation:us-west-2:*:stack/onica-serverless-api-dev*/*
+                  - arn:aws:cloudformation:us-west-2:*:stack/onica-serverless-api-prod*/*
                 Effect: Allow
               - Action:
                   - cloudformation:ValidateTemplate
@@ -132,8 +132,8 @@ Resources:
                   - iam:AttachRolePolicy
                   - iam:DeleteRolePolicy
                 Resource:
-                  - arn:aws:iam::873340800138:role/onica-serverless-api-dev*-lambdaRole
-                  - arn:aws:iam::873340800138:role/onica-serverless-api-prod*-lambdaRole
+                  - arn:aws:iam::*:role/onica-serverless-api-dev*-lambdaRole
+                  - arn:aws:iam::*:role/onica-serverless-api-prod*-lambdaRole
                 Effect: Allow
               - Action:
                   - apigateway:GET
@@ -167,8 +167,8 @@ Resources:
                   - lambda:RemovePermission
                   - lambda:InvokeFunction
                 Resource:
-                  - arn:aws:lambda:*:873340800138:function:onica-serverless-api-dev*
-                  - arn:aws:lambda:*:873340800138:function:onica-serverless-api-prod*
+                  - arn:aws:lambda:*:*:function:onica-serverless-api-dev*
+                  - arn:aws:lambda:*:*:function:onica-serverless-api-prod*
                 Effect: Allow
               - Action:
                   - ec2:DescribeSecurityGroups
@@ -183,8 +183,8 @@ Resources:
                   - events:Delete*
                   - events:Describe*
                 Resource:
-                  - arn:aws:events::873340800138:rule/onica-serverless-api-dev*
-                  - arn:aws:events::873340800138:rule/onica-serverless-api-prod*
+                  - arn:aws:events::*:rule/onica-serverless-api-dev*
+                  - arn:aws:events::*:rule/onica-serverless-api-prod*
                 Effect: Allow
 
   DevCodeBuild:
